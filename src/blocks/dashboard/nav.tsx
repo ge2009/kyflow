@@ -3,6 +3,7 @@
 import {
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -18,22 +19,18 @@ import {
 import { ChevronRight } from "lucide-react";
 import { usePathname, useRouter, Link } from "@/core/i18n/navigation";
 import { NavItem, type Nav as NavType } from "@/types/blocks/base";
+import { Icon } from "../base/icon";
 
-export function SidebarNav({
-  data,
-  className,
-}: {
-  data: NavType;
-  className?: string;
-}) {
+export function Nav({ nav, className }: { nav: NavType; className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
 
   return (
     <SidebarGroup className={className}>
-      <SidebarGroupContent className="flex flex-col gap-2 mt-4">
+      <SidebarGroupContent className="flex flex-col gap-2 mt-0">
+        {nav.title && <SidebarGroupLabel>{nav.title}</SidebarGroupLabel>}
         <SidebarMenu>
-          {data.items.map((item: NavItem | undefined) => (
+          {nav.items.map((item: NavItem | undefined) => (
             <Collapsible
               key={item?.name || item?.title || ""}
               asChild
@@ -43,23 +40,24 @@ export function SidebarNav({
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton
+                    asChild
                     tooltip={item?.title}
                     className={`${
                       item?.is_active || pathname.endsWith(item?.url as string)
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90 hover:text-sidebar-accent-foreground active:bg-sidebar-accent/90 active:text-sidebar-accent-foreground min-w-8 duration-200 ease-linear"
+                        ? "bg-sidebar-accent/80 text-sidebar-accent-foreground hover:bg-sidebar-accent/90 hover:text-sidebar-accent-foreground active:bg-sidebar-accent/90 active:text-sidebar-accent-foreground min-w-8 duration-200 ease-linear"
                         : ""
                     }`}
-                    onClick={() => {
-                      if (item?.url) {
-                        router.push(item.url as string);
-                      }
-                    }}
                   >
-                    {item?.icon}
-                    <span>{item?.title || ""}</span>
-                    {item?.children && (
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    )}
+                    <Link
+                      href={item?.url as string}
+                      target={item?.target as string}
+                    >
+                      {item?.icon && <Icon name={item.icon as string} />}
+                      <span>{item?.title || ""}</span>
+                      {item?.children && (
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      )}
+                    </Link>
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
                 {item?.children && (

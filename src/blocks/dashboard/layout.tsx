@@ -5,10 +5,10 @@ import { Sidebar } from "./sidebar";
 
 export function DashboardLayout({
   children,
-  data,
+  dashboard,
 }: {
   children: ReactNode;
-  data: DashboardType;
+  dashboard: DashboardType;
 }) {
   return (
     <SidebarProvider
@@ -19,10 +19,10 @@ export function DashboardLayout({
         } as React.CSSProperties
       }
     >
-      {data.sidebar && (
+      {dashboard.sidebar && (
         <Sidebar
-          variant={data.sidebar.variant || "inset"}
-          data={data.sidebar}
+          variant={dashboard.sidebar.variant || "inset"}
+          sidebar={dashboard.sidebar}
         />
       )}
       <SidebarInset>{children}</SidebarInset>

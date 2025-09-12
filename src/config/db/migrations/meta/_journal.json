@@ -8,6 +8,13 @@
       "when": 1756978156810,
       "tag": "0000_thin_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1757607238180,
+      "tag": "0001_military_spitfire",
+      "breakpoints": true
     }
   ]
 }

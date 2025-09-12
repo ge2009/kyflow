@@ -9,5 +9,5 @@ export default async function AdminLayout({
 }) {
   const data = await getAdminData("admin");
 
-  return <DashboardLayout data={data}>{children}</DashboardLayout>;
+  return <DashboardLayout dashboard={data}>{children}</DashboardLayout>;
 }

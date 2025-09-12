@@ -10,6 +10,7 @@ export interface NavItem {
   title?: string;
   url?: string;
   target?: string;
+  type?: string;
   icon?: ReactNode;
   is_expand?: boolean;
   is_active?: boolean;
@@ -35,4 +36,10 @@ export interface Brand {
   title?: string;
   logo?: Image;
   url?: string;
+}
+
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
 }

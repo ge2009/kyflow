@@ -6,8 +6,7 @@ import { Link } from "@/core/i18n/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LandingData } from "@/services/locale";
-import { SignButton } from "./sign-button";
-import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler";
+import { SignUser } from "./sign-user";
 import { LocaleSelector } from "./locale-selector";
 import { ThemeToggler } from "@/blocks/base/theme-toggler";
 
@@ -100,7 +99,7 @@ export const Header = ({ data }: { data: LandingData["header"] }) => {
                 </ul>
               </div>
 
-              {data.show_sign ? <SignButton isScrolled={isScrolled} /> : null}
+              {data.show_sign ? <SignUser isScrolled={isScrolled} /> : null}
               {data.show_theme ? <ThemeToggler /> : null}
               {data.show_locale ? <LocaleSelector /> : null}
             </div>

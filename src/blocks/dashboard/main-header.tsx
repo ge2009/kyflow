@@ -3,42 +3,68 @@
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ScrollBar } from "@/components/ui/scroll-area";
-import { Nav, NavItem } from "@/types/blocks/base";
+import { Nav, NavItem, Button as ButtonType } from "@/types/blocks/base";
 import { Link } from "@/core/i18n/navigation";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/blocks/base/icon";
 
 export function MainHeader({
   title,
   description,
   tabs,
+  actions,
 }: {
   title?: string;
   description?: string;
   tabs?: NavItem[];
+  actions?: ButtonType[];
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-2xl font-bold tracking-tight">{title || ""}</h2>
-      <p className="text-muted-foreground">{description || ""}</p>
-      <div className="relative mt-4">
-        <ScrollArea className="w-full lg:max-w-none">
-          <div className="space-x-2 flex items-center">
-            {tabs?.map((tab) => (
-              <div
-                key={tab.name || tab.title}
-                className={cn(
-                  "px-4 py-1 rounded-full border text-sm text-muted-foreground block duration-150",
-                  tab.is_active
-                    ? "bg-primary text-primary-foreground font-bold"
-                    : "hover:bg-primary hover:text-primary-foreground"
-                )}
-              >
-                <Link href={tab.url || ""}>{tab.title}</Link>
-              </div>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" className="invisible" />
-        </ScrollArea>
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-2xl font-bold tracking-tight">{title || ""}</h2>
+          <p className="text-muted-foreground">{description || ""}</p>
+        </div>
+        <div>
+          {actions?.map((action) => (
+            <Button
+              asChild
+              key={action.name}
+              onClick={action.onClick}
+              variant={action.variant || "default"}
+            >
+              <Link href={action.url || ""} target={action.target || "_self"}>
+                {action.icon && <Icon name={action.icon as string} />}
+                {action.text}
+              </Link>
+            </Button>
+          ))}
+        </div>
       </div>
+      {tabs && tabs.length > 0 ? (
+        <div className="relative mb-8">
+          <ScrollArea className="w-full lg:max-w-none">
+            <div className="space-x-2 flex items-center">
+              {tabs?.map((tab) => (
+                <Link key={tab.name || tab.title} href={tab.url || ""}>
+                  <div
+                    className={cn(
+                      "px-4 py-1 rounded-full border text-sm text-muted-foreground block duration-150",
+                      tab.is_active
+                        ? "bg-primary text-primary-foreground font-bold"
+                        : "hover:bg-primary hover:text-primary-foreground"
+                    )}
+                  >
+                    {tab.title}
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" className="invisible" />
+          </ScrollArea>
+        </div>
+      ) : null}
     </div>
   );
 }

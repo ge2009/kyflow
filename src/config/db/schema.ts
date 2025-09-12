@@ -64,3 +64,47 @@ export const config = pgTable("config", {
   name: text("name").unique().notNull(),
   value: text("value"),
 });
+
+export const taxonomy = pgTable("taxonomy", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  parentId: text("parent_id"),
+  slug: text("slug").unique().notNull(),
+  type: text("type").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  image: text("image"),
+  icon: text("icon"),
+  status: text("status").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  deletedAt: timestamp("deleted_at"),
+});
+
+export const post = pgTable("post", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  parentId: text("parent_id"),
+  slug: text("slug").unique().notNull(),
+  type: text("type").notNull(),
+  title: text("title"),
+  description: text("description"),
+  image: text("image"),
+  content: text("content"),
+  categories: text("categories"),
+  tags: text("tags"),
+  authorName: text("author_name"),
+  authorImage: text("author_image"),
+  status: text("status").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  deletedAt: timestamp("deleted_at"),
+});

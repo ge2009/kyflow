@@ -13,10 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler";
+import { useRouter } from "@/core/i18n/navigation";
 
-export function SignButton({ isScrolled }: { isScrolled?: boolean }) {
+export function SignUser({ isScrolled }: { isScrolled?: boolean }) {
   const { data: session, isPending } = useSession();
+  const router = useRouter();
 
   if (isPending) {
     return <div>Loading...</div>;
@@ -35,7 +36,9 @@ export function SignButton({ isScrolled }: { isScrolled?: boolean }) {
           <DropdownMenuLabel>{session.user.name}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Admin</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/admin")}>
+            Admin
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => signOut()}>
             <span>Sign Out</span>

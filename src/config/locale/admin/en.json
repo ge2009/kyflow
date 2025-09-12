@@ -8,28 +8,44 @@
       },
       "url": "/admin"
     },
-    "main_nav": {
-      "items": [
-        {
-          "title": "Dashboard",
-          "url": "/admin"
-        },
-        {
-          "title": "Users",
-          "url": "/admin/users"
-        }
-      ]
-    },
+    "navs": [
+      {
+        "items": [
+          {
+            "title": "Users",
+            "url": "/admin/users",
+            "icon": "RiUserLine"
+          }
+        ]
+      },
+      {
+        "title": "CMS",
+        "items": [
+          {
+            "title": "Categories",
+            "icon": "RiFolderLine",
+            "url": "/admin/categories"
+          },
+          {
+            "title": "Posts",
+            "icon": "RiFileTextLine",
+            "url": "/admin/posts"
+          }
+        ]
+      }
+    ],
     "bottom_nav": {
       "items": [
         {
-          "title": "Documents",
-          "url": "https://docs.shipany.ai",
-          "target": "_blank"
+          "title": "Settings",
+          "url": "/admin/settings/auth",
+          "icon": "RiSettingsLine"
         },
         {
-          "title": "Settings",
-          "url": "/admin/settings"
+          "title": "Home",
+          "url": "/",
+          "icon": "RiHomeLine",
+          "target": "_blank"
         }
       ]
     },

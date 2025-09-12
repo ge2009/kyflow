@@ -70,7 +70,7 @@ export function SignUser({ nav }: { nav: NavType }) {
                       {session?.user?.name}
                     </span>
                     <span className="truncate text-xs">
-                      {session?.user?.email}
+                      {/* {session?.user?.email} */}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
@@ -96,7 +96,7 @@ export function SignUser({ nav }: { nav: NavType }) {
                         {session?.user?.name}
                       </span>
                       <span className="truncate text-xs">
-                        {session?.user?.email}
+                        {/* {session?.user?.email} */}
                       </span>
                     </div>
                   </div>

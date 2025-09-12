@@ -1,4 +1,4 @@
-import { TopHeader, MainHeader } from "@/blocks/dashboard";
+import { Header, Main, MainHeader } from "@/blocks/dashboard";
 import { FormCard } from "@/blocks/form";
 import { NavItem } from "@/types/blocks/base";
 import { Form as FormType } from "@/types/blocks/form";
@@ -46,7 +46,7 @@ export default async function SettingsPage({
       is_active: tab === "analytics",
     },
     {
-      title: "ADs",
+      title: "Ads",
       url: "/admin/settings/ads",
       is_active: tab === "ads",
     },
@@ -505,13 +505,13 @@ export default async function SettingsPage({
 
   return (
     <>
-      <TopHeader />
-      <div className="w-full md:max-w-2xl mx-left flex flex-1 flex-col gap-6 px-4 lg:px-6 py-6">
+      <Header />
+      <Main>
         <MainHeader title="Settings" tabs={tabs} />
         {forms.map((form) => (
-          <FormCard key={form.title} form={form} />
+          <FormCard key={form.title} form={form} className="md:max-w-xl mb-8" />
         ))}
-      </div>
+      </Main>
     </>
   );
 }

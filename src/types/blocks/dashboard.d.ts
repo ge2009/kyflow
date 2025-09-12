@@ -6,8 +6,7 @@ export interface Dashboard {
 
 export interface Sidebar {
   brand?: Brand;
-  main_nav?: Nav;
+  navs?: Nav[];
   bottom_nav?: Nav;
-  user_nav?: Nav;
   variant?: "inset" | "sidebar" | "floating";
 }

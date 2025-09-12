@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { DocumentIllustation } from "@/components/document-illustration";
-import { CurrencyIllustration } from "@/components/currency-illustration";
-import { ArrowBigRight } from "lucide-react";
+import { ArrowBigRight, DownloadCloud } from "lucide-react";
 import Link from "next/link";
 import { LandingData } from "@/services/locale";
 
@@ -33,7 +31,7 @@ export function FeaturesStep({ data }: { data: LandingData["features"] }) {
                   </span>
                   <div className="relative">
                     <div className="mx-auto my-6 w-fit">
-                      <DocumentIllustation />
+                      <DownloadCloud />
                     </div>
                     {idx < data.items.length - 1 && (
                       <ArrowBigRight className="@3xl:block fill-background stroke-background absolute inset-y-0 right-0 my-auto hidden translate-x-[150%] drop-shadow" />

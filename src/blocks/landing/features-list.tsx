@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Cpu, Lock, Sparkles, Zap } from "lucide-react";
-import { DropdownIllustration } from "@/components/dropdown-illustration";
 import Link from "next/link";
 import { LandingData } from "@/services/locale";
 import Image from "next/image";
