@@ -34,3 +34,15 @@ Content-Type: application/json
   "model": "openai/gpt-5",
   "prompt": "What is the capital of France?"
 }
+
+### create payment
+POST {{baseUrl}}/api/demo/payment
+Content-Type: application/json
+
+{
+  "amount": 122,
+  "currency": "hkd",
+  "provider": "paypal",
+  "product_id": "prod_7ehwYVBKhykl9mAFBcPibQ",
+  "email": "me@idoubi.cc"
+}
