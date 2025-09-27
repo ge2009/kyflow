@@ -107,12 +107,11 @@ export async function GET(req: Request) {
           session.subscriptionResult
         );
 
-        const sss = await updateOrderWithSubscription(
+        await updateOrderWithSubscription(
           orderNo,
           updateOrder,
           newSubscription
         );
-        console.log("update order with subscription result:", sss);
       } else {
         // not subscription
         await updateOrderByOrderNo(orderNo, updateOrder);

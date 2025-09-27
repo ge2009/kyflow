@@ -11,10 +11,15 @@ export async function GET(
 ) {
   const { provider } = await params;
   const { searchParams } = new URL(req.url);
+  const sessionId = searchParams.get("session_id") || "";
 
-  const session = await paymentService.getPaymentSession({
-    providerName: provider,
-    searchParams,
+  const paymentProvider = paymentService.getProvider(provider);
+  if (!paymentProvider) {
+    return respErr("payment provider not found");
+  }
+
+  const session = await paymentProvider.getPayment({
+    sessionId: sessionId,
   });
 
   if (!session) {
