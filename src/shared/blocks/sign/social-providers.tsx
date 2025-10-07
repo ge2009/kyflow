@@ -9,10 +9,12 @@ import { RiGithubFill, RiGoogleFill } from "react-icons/ri";
 import { useAppContext } from "@/shared/contexts/app";
 
 export function SocialProviders({
+  configs,
   callbackURL,
   loading,
   setLoading,
 }: {
+  configs: Record<string, string>;
   callbackURL: string;
   loading: boolean;
   setLoading: (loading: boolean) => void;
@@ -42,20 +44,25 @@ export function SocialProviders({
     );
   };
 
-  const providers: ButtonType[] = [
-    {
+  const providers: ButtonType[] = [];
+
+  if (configs.google_auth_enabled === "true") {
+    providers.push({
       name: "google",
       title: "Sign in with Google",
       icon: <RiGoogleFill />,
       onClick: () => handleSignIn({ provider: "google" }),
-    },
-    {
+    });
+  }
+
+  if (configs.github_auth_enabled === "true") {
+    providers.push({
       name: "github",
       title: "Sign in with Github",
       icon: <RiGithubFill />,
       onClick: () => handleSignIn({ provider: "github" }),
-    },
-  ];
+    });
+  }
 
   return (
     <div

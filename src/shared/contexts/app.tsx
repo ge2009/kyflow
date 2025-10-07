@@ -17,6 +17,7 @@ export interface ContextValue {
   isCheckSign: boolean;
   isShowSignModal: boolean;
   setIsShowSignModal: (show: boolean) => void;
+  configs: Record<string, string>;
 }
 
 const AppContext = createContext({} as ContextValue);
@@ -25,6 +26,8 @@ export const useAppContext = () => useContext(AppContext);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const { theme, setTheme } = useTheme();
+
+  const [configs, setConfigs] = useState<Record<string, string>>({});
 
   // sign user
   const [user, setUser] = useState<User | null>(null);
@@ -38,7 +41,26 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   // show sign modal
   const [isShowSignModal, setIsShowSignModal] = useState(false);
 
-  const fetchUserCredits = async () => {
+  const fetchConfigs = async function () {
+    try {
+      const resp = await fetch("/api/config/get-configs", {
+        method: "POST",
+      });
+      if (!resp.ok) {
+        throw new Error(`fetch failed with status: ${resp.status}`);
+      }
+      const { code, message, data } = await resp.json();
+      if (code !== 0) {
+        throw new Error(message);
+      }
+
+      setConfigs(data);
+    } catch (e) {
+      console.log("fetch configs failed:", e);
+    }
+  };
+
+  const fetchUserCredits = async function () {
     try {
       if (!user) {
         return;
@@ -60,6 +82,10 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       console.log("fetch user credits failed:", e);
     }
   };
+
+  useEffect(() => {
+    fetchConfigs();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !theme) {
@@ -92,6 +118,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         isCheckSign,
         isShowSignModal,
         setIsShowSignModal,
+        configs,
       }}
     >
       {children}

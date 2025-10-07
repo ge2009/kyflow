@@ -20,7 +20,11 @@ export async function middleware(request: NextRequest) {
     : pathname;
 
   // Only check authentication for admin routes
-  if (pathWithoutLocale.startsWith("/admin")) {
+  if (
+    pathWithoutLocale.startsWith("/admin") ||
+    pathWithoutLocale.startsWith("/settings") ||
+    pathWithoutLocale.startsWith("/activity")
+  ) {
     try {
       const { data: session } = await betterFetch<Session>(
         "/api/auth/get-session",

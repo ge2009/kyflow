@@ -19,6 +19,7 @@ import { SmartIcon } from "@/shared/blocks/common/smart-icon";
 import { Input } from "./input";
 import { Loader } from "lucide-react";
 import { Select } from "./select";
+import { Switch } from "./switch";
 import { Markdown } from "./markdown";
 
 import { Textarea } from "@/shared/components/ui/textarea";
@@ -33,6 +34,10 @@ import { isArray } from "util";
 import { Label } from "@/shared/components/ui/label";
 
 function buildFieldSchema(field: FormFieldType) {
+  if (field.type === "switch") {
+    return z.boolean();
+  }
+
   let schema = z.string();
 
   if (field.validation?.required) {
@@ -102,11 +107,18 @@ export function Form({
 
   const router = useRouter();
   const FormSchema = generateFormSchema(fields);
-  const defaultValues: Record<string, string> = {};
+  const defaultValues: Record<string, any> = {};
 
   fields.forEach((field) => {
     if (field.name) {
-      defaultValues[field.name] = data?.[field.name] || field.value || "";
+      if (field.type === "switch") {
+        const val = data?.[field.name] ?? field.value;
+        console.log("switch value", val, field.name);
+        defaultValues[field.name] =
+          val === true || val === "true" || val === 1 || val === "1";
+      } else {
+        defaultValues[field.name] = data?.[field.name] || field.value || "";
+      }
     }
   });
 
@@ -116,13 +128,15 @@ export function Form({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    console.log("data", data);
     if (!submit?.handler) return;
 
     try {
       const formData = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value as string);
+        // 保留布尔值和其他类型的原始值
+        formData.append(key, String(value));
       });
 
       setLoading(true);
@@ -184,6 +198,8 @@ export function Form({
                         />
                       ) : item.type === "select" ? (
                         <Select field={item} formField={field} data={data} />
+                      ) : item.type === "switch" ? (
+                        <Switch field={item} formField={field} data={data} />
                       ) : item.type === "checkbox" ? (
                         <div className="flex items-center gap-2 flex-wrap ">
                           {item.options?.map((option: any) => (

@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:3000
 
-### Get configs
-POST {{baseUrl}}/api/get-configs
+### Get public configs
+POST {{baseUrl}}/api/config/get-configs
 
 ### send email
 POST {{baseUrl}}/api/demo/send-email

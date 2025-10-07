@@ -37,7 +37,7 @@ export default async function RootLayout({
   const locale = await getLocale();
   setRequestLocale(locale);
 
-  const isProduction = process.env.NODE_ENV === "production" || true;
+  const isProduction = process.env.NODE_ENV === "production";
 
   // app url
   const appUrl = envConfigs.app_url || "";

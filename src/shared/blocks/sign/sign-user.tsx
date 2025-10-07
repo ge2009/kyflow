@@ -114,7 +114,7 @@ export function SignUser({
         asChild
         size={signButtonSize}
         className={cn(
-          "border-foreground/10 ml-4 h-7 ring-0",
+          "border-foreground/10 ml-4 ring-0 cursor-pointer",
           isScrolled && "lg:hidden"
         )}
         onClick={() => setIsShowSignModal(true)}

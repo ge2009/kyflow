@@ -39,7 +39,6 @@ export function SignModal() {
 
   const callbackURL =
     typeof window !== "undefined" ? window.location.href : "/";
-  const configs = envConfigs;
 
   const [loading, setLoading] = useState(false);
 
@@ -56,7 +55,7 @@ export function SignModal() {
               {t("sign_modal.sign_in_description")}
             </DialogDescription>
           </DialogHeader>
-          <SignInForm configs={configs} callbackUrl={callbackURL} />
+          <SignInForm callbackUrl={callbackURL} />
         </DialogContent>
       </Dialog>
     );
@@ -71,7 +70,7 @@ export function SignModal() {
             {t("sign_modal.sign_in_description")}
           </DrawerDescription>
         </DrawerHeader>
-        <SignInForm configs={configs} callbackUrl={callbackURL} />
+        <SignInForm callbackUrl={callbackURL} className="mt-8" />
         <DrawerFooter className="pt-4">
           <DrawerClose asChild>
             <Button variant="outline">{t("sign_modal.cancel_title")}</Button>

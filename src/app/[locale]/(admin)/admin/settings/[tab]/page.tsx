@@ -107,6 +107,7 @@ export default async function SettingsPage({
           group: setting.group,
           options: setting.options,
           tip: setting.tip,
+          value: setting.value,
         })),
       passby: {
         provider: group.name,

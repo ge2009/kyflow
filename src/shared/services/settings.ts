@@ -22,6 +22,12 @@ export interface SettingGroup {
 
 export const settingGroups: SettingGroup[] = [
   {
+    name: "email_auth",
+    title: "Email Auth",
+    description: "custom your email auth settings",
+    tab: "auth",
+  },
+  {
     name: "google_auth",
     title: "Google Auth",
     description: "custom your google auth settings",
@@ -115,6 +121,22 @@ export const settingGroups: SettingGroup[] = [
 
 export const settings: Setting[] = [
   {
+    name: "email_auth_enabled",
+    title: "Enabled",
+    type: "switch",
+    value: "true",
+    group: "email_auth",
+    tab: "auth",
+  },
+  {
+    name: "google_auth_enabled",
+    title: "Enabled",
+    type: "switch",
+    value: "false",
+    group: "google_auth",
+    tab: "auth",
+  },
+  {
     name: "google_client_id",
     title: "Google Client ID",
     type: "text",
@@ -128,6 +150,13 @@ export const settings: Setting[] = [
     type: "password",
     placeholder: "",
     group: "google_auth",
+    tab: "auth",
+  },
+  {
+    name: "github_auth_enabled",
+    title: "Enabled",
+    type: "switch",
+    group: "github_auth",
     tab: "auth",
   },
   {
@@ -346,4 +375,10 @@ export const settings: Setting[] = [
     tip: "Fal API Key is used to access the Fal API",
     tab: "ai",
   },
+];
+
+export const publicSettingNames = [
+  "email_auth_enabled",
+  "google_auth_enabled",
+  "github_auth_enabled",
 ];
