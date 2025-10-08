@@ -21,7 +21,6 @@ export function ConsoleLayout({
   children: ReactNode;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
-
   const filteredItems = nav?.items.filter((item) =>
     item.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -87,9 +86,9 @@ export function ConsoleLayout({
             {/* Navigation Menu */}
             <nav className="space-y-1">
               {filteredItems?.map((item, idx) => (
-                <a
+                <Link
                   key={idx}
-                  href={item.url}
+                  href={item.url || ""}
                   className={`flex items-center space-x-3 px-3 py-2 text-sm rounded-md transition-colors ${
                     item.is_active
                       ? "bg-secondary text-secondary-foreground font-medium"
@@ -98,7 +97,7 @@ export function ConsoleLayout({
                 >
                   <SmartIcon name={item.icon as string} size={16} />
                   <span>{item.title}</span>
-                </a>
+                </Link>
               ))}
             </nav>
           </div>

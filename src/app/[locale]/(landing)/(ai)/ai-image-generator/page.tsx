@@ -22,11 +22,6 @@ export default async function ImageGeneratorPage() {
       <Hero hero={hero} />
 
       <ImageGenerator />
-
-      <Showcases showcases={t.raw("showcases")} />
-
-      <FAQ faq={t.raw("faq")} />
-      <CTA cta={t.raw("cta")} className="bg-muted" />
     </>
   );
 }
