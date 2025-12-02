@@ -37,6 +37,7 @@ export async function POST(req: Request) {
     const result = await aiProvider?.query?.({
       taskId: task.taskId,
       mediaType: task.mediaType,
+      model: task.model,
     });
 
     if (!result?.taskStatus) {

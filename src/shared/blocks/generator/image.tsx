@@ -72,14 +72,8 @@ const MAX_PROMPT_LENGTH = 2000;
 
 const MODEL_OPTIONS = [
   {
-    value: 'black-forest-labs/flux-schnell',
-    label: 'FLUX Schnell',
-    provider: 'replicate',
-    scenes: ['text-to-image'],
-  },
-  {
-    value: 'google/nano-banana',
-    label: 'Nano Banana',
+    value: 'google/nano-banana-pro',
+    label: 'Nano Banana Pro',
     provider: 'replicate',
     scenes: ['text-to-image', 'image-to-image'],
   },
@@ -88,6 +82,36 @@ const MODEL_OPTIONS = [
     label: 'Seedream 4',
     provider: 'replicate',
     scenes: ['text-to-image', 'image-to-image'],
+  },
+  {
+    value: 'fal-ai/nano-banana-pro',
+    label: 'Nano Banana Pro',
+    provider: 'fal',
+    scenes: ['text-to-image'],
+  },
+  {
+    value: 'fal-ai/nano-banana-pro/edit',
+    label: 'Nano Banana Pro',
+    provider: 'fal',
+    scenes: ['image-to-image'],
+  },
+  {
+    value: 'fal-ai/bytedance/seedream/v4/edit',
+    label: 'Seedream 4',
+    provider: 'fal',
+    scenes: ['image-to-image'],
+  },
+  {
+    value: 'fal-ai/z-image/turbo',
+    label: 'Z-Image Turbo',
+    provider: 'fal',
+    scenes: ['text-to-image'],
+  },
+  {
+    value: 'fal-ai/flux-2-flex',
+    label: 'Flux 2 Flex',
+    provider: 'fal',
+    scenes: ['text-to-image'],
   },
   {
     value: 'gemini-3-pro-image-preview',
@@ -107,6 +131,10 @@ const PROVIDER_OPTIONS = [
   {
     value: 'replicate',
     label: 'Replicate',
+  },
+  {
+    value: 'fal',
+    label: 'Fal',
   },
   {
     value: 'gemini',

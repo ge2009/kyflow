@@ -1,5 +1,6 @@
 import {
   AIManager,
+  FalProvider,
   GeminiProvider,
   KieProvider,
   ReplicateProvider,
@@ -26,6 +27,15 @@ export function getAIManagerWithConfigs(configs: Configs) {
       new ReplicateProvider({
         apiToken: configs.replicate_api_token,
         customStorage: configs.replicate_custom_storage === 'true',
+      })
+    );
+  }
+
+  if (configs.fal_api_key) {
+    aiManager.addProvider(
+      new FalProvider({
+        apiKey: configs.fal_api_key,
+        customStorage: configs.fal_custom_storage === 'true',
       })
     );
   }

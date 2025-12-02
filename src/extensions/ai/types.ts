@@ -110,8 +110,10 @@ export interface AIProvider {
   query?({
     taskId,
     mediaType,
+    model,
   }: {
     taskId: string;
     mediaType?: string;
+    model?: string;
   }): Promise<AITaskResult>;
 }
