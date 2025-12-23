@@ -84,7 +84,9 @@ export const authClient = createAuthClient({
   baseURL: envConfigs.auth_url,
   fetchOptions: {
     // Avoid amplifying request storms (e.g. during env/db switching in dev).
-    retry: 1,
+    // IMPORTANT: auth mutations (sign-in/sign-up) must be non-retriable,
+    // otherwise we may send verification emails multiple times.
+    retry: 0,
     customFetchImpl: createGetSessionThrottledFetch({
       minIntervalMs: AUTH_GET_SESSION_MIN_INTERVAL_MS,
     }),
@@ -101,7 +103,9 @@ export function getAuthClient(configs: Record<string, string>) {
     plugins: getAuthPlugins(configs),
     fetchOptions: {
       // Avoid amplifying request storms (e.g. during env/db switching in dev).
-      retry: 1,
+      // IMPORTANT: auth mutations (sign-in/sign-up) must be non-retriable,
+      // otherwise we may send verification emails multiple times.
+      retry: 0,
       customFetchImpl: createGetSessionThrottledFetch({
         minIntervalMs: AUTH_GET_SESSION_MIN_INTERVAL_MS,
       }),
