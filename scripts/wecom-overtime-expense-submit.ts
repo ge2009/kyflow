@@ -75,22 +75,30 @@ function pickRandomOvertimeWindow(dateTs: number): { startTs: number; endTs: num
   const base = new Date(dateTs * 1000);
   const weekend = isWeekend(dateTs);
 
-  // 工作日：晚上加班（19:00 以后，默认偏向 20:00）
-  // 周末：白天时段
-  const weekdayHourOptions = [19, 20, 20, 21];
-  const weekendHourOptions = [9, 10, 11];
-  const hourOptions = weekend ? weekendHourOptions : weekdayHourOptions;
-
-  const startHour = hourOptions[Math.floor(Math.random() * hourOptions.length)];
-  const minuteOptions = weekend ? [0, 30] : [0, 15, 30, 45];
-  const startMinute = minuteOptions[Math.floor(Math.random() * minuteOptions.length)];
-
   const start = new Date(base);
-  start.setHours(startHour, startMinute, 0, 0);
+  const end = new Date(base);
 
-  // random duration between 8.0h and 10.0h in 0.5h steps
-  const durationHours = 8 + Math.floor(Math.random() * 5) * 0.5;
-  const end = new Date(start.getTime() + durationHours * 3600 * 1000);
+  if (weekend) {
+    // 周末：白天时段
+    const weekendHourOptions = [9, 10, 11];
+    const startHour = weekendHourOptions[Math.floor(Math.random() * weekendHourOptions.length)];
+    const startMinute = [0, 30][Math.floor(Math.random() * 2)];
+
+    start.setHours(startHour, startMinute, 0, 0);
+    // 周末保持较长时段（默认 8 小时）
+    end.setTime(start.getTime() + 8 * 3600 * 1000);
+  } else {
+    // 工作日：晚上加班，当天完成，不跨天
+    // 开始仅在 18:30 或 19:00
+    const starts: Array<[number, number]> = [
+      [18, 30],
+      [19, 0],
+    ];
+    const [h, m] = starts[Math.floor(Math.random() * starts.length)];
+
+    start.setHours(h, m, 0, 0);
+    end.setHours(23, 59, 0, 0);
+  }
 
   return {
     startTs: Math.floor(start.getTime() / 1000),
