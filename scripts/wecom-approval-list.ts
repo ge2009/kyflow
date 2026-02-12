@@ -52,7 +52,7 @@ async function main() {
   okOrThrow(tokenResp, 'gettoken');
   const accessToken = tokenResp.access_token as string;
 
-  let cursor = '';
+  let cursor = 0;
   const all: string[] = [];
 
   for (let i = 0; i < 10; i++) {
@@ -70,7 +70,7 @@ async function main() {
     const list = (resp?.sp_no_list || []) as string[];
     all.push(...list);
 
-    const next = String(resp?.next_cursor || '');
+    const next = Number(resp?.next_cursor ?? 0);
     if (!next || next === cursor || list.length === 0) break;
     cursor = next;
   }
