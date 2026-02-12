@@ -201,6 +201,9 @@ async function main() {
   const relatedSpNo = arg('--related-sp-no') || '';
   const remark = arg('--remark') || purpose;
   const projectName = arg('--project') || '温州天铭信息技术有限公司';
+  const projectKey = arg('--project-key') || '';
+  const categoryKey = arg('--category-key') || '';
+  const fileId = arg('--file-id') || '';
 
   // category default: weekend -> 周末加班, else 晚上加班
   const defaultCategoryKeyword = isWeekend(dateTs) ? '周末加班' : '晚上加班';
@@ -258,7 +261,9 @@ async function main() {
 
     if (/关联项目/.test(title) && c === 'Selector') {
       const options = extractSelectorOptions(ctrl);
-      const hit = chooseOption(options, projectName) || options[0];
+      const hit = projectKey
+        ? { key: projectKey, text: projectName }
+        : chooseOption(options, projectName) || options[0];
       if (hit) {
         applyDataContents.push({
           control: c,
@@ -289,8 +294,10 @@ async function main() {
 
     if (/类别/.test(title) && c === 'Selector') {
       const options = extractSelectorOptions(ctrl);
-      const hit = chooseOption(options, categoryKeyword) || options[0];
-      if (!hit) throw new Error('category selector has no options');
+      const hit = categoryKey
+        ? { key: categoryKey, text: categoryKeyword }
+        : chooseOption(options, categoryKeyword) || options[0];
+      if (!hit) throw new Error('category selector has no options; pass --category-key');
       applyDataContents.push({
         control: c,
         id: ctrl.id,
@@ -315,6 +322,19 @@ async function main() {
 
     if (/备注/.test(title) && (c === 'Text' || c === 'Textarea')) {
       applyDataContents.push({ control: c, id: ctrl.id, value: { text: remark } });
+      continue;
+    }
+
+    if (/报销证明|证明图片|附件/.test(title) && c === 'File') {
+      if (!fileId) {
+        // leave it to required-check diagnostics
+        continue;
+      }
+      applyDataContents.push({
+        control: c,
+        id: ctrl.id,
+        value: { files: [{ file_id: fileId }] },
+      });
       continue;
     }
   }
