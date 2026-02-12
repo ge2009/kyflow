@@ -73,9 +73,16 @@ function isWeekend(dateTs: number): boolean {
 
 function pickRandomOvertimeWindow(dateTs: number): { startTs: number; endTs: number } {
   const base = new Date(dateTs * 1000);
-  // random start between 08:00 and 10:45
-  const startHour = 8 + Math.floor(Math.random() * 3); // 8,9,10
-  const minuteOptions = [0, 15, 30, 45];
+  const weekend = isWeekend(dateTs);
+
+  // 工作日：晚上加班（19:00 以后，默认偏向 20:00）
+  // 周末：白天时段
+  const weekdayHourOptions = [19, 20, 20, 21];
+  const weekendHourOptions = [9, 10, 11];
+  const hourOptions = weekend ? weekendHourOptions : weekdayHourOptions;
+
+  const startHour = hourOptions[Math.floor(Math.random() * hourOptions.length)];
+  const minuteOptions = weekend ? [0, 30] : [0, 15, 30, 45];
   const startMinute = minuteOptions[Math.floor(Math.random() * minuteOptions.length)];
 
   const start = new Date(base);
