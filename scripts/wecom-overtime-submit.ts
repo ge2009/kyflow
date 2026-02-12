@@ -107,6 +107,22 @@ function calcHours(startTs: number, endTs: number): string {
   return (Math.round(h * 100) / 100).toString();
 }
 
+function formatCN(ts: number): string {
+  const d = new Date(ts * 1000);
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${y}/${m}/${day} ${hh}:${mm}`;
+}
+
+function trim20(text: string): string {
+  const arr = Array.from(text);
+  if (arr.length <= 20) return text;
+  return arr.slice(0, 20).join('');
+}
+
 function buildValue(control: FlatControl, val: { reason: string; startTs: number; endTs: number; durationSec: number; hours: string; userId: string }) {
   const title = control.title;
   const c = control.control;
@@ -241,6 +257,12 @@ async function main() {
     }
   }
 
+  const summaryList = [
+    { summary_info: [{ text: trim20(`加班事由:${reason}`), lang: 'zh_CN' }] },
+    { summary_info: [{ text: trim20(`开始:${formatCN(startTs)}`), lang: 'zh_CN' }] },
+    { summary_info: [{ text: trim20(`结束:${formatCN(endTs)}`), lang: 'zh_CN' }] },
+  ];
+
   const payload = {
     creator_userid: userId,
     template_id: templateId,
@@ -248,6 +270,7 @@ async function main() {
     apply_data: {
       contents: applyDataContents,
     },
+    summary_list: summaryList,
     // optional, keep empty for now
     notifyer: [],
   };
