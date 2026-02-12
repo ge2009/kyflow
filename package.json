@@ -38,7 +38,8 @@
     "cf:upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
     "wecom:check": "tsx scripts/wecom-health-check.ts",
-    "wecom:overtime": "tsx scripts/wecom-overtime-submit.ts"
+    "wecom:overtime": "tsx scripts/wecom-overtime-submit.ts",
+    "wecom:expense": "tsx scripts/wecom-expense-submit.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.89",
