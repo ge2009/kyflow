@@ -52,6 +52,29 @@ pnpm wecom:expense \
   3) 自动将该 `sp_no` 填入报销的关联审批单
   4) 提交报销
 
+### E) 电子发票报销
+- 命令：`pnpm wecom:invoice`
+- 能力：
+  - 自动上传 PDF
+  - 自动识别发票号码（可手动覆盖）
+  - 支持手动填写开票金额
+
+示例：
+```bash
+pnpm wecom:invoice \
+  --pdf ./invoice.pdf \
+  --amount 98 \
+  --submit
+```
+手动发票号：
+```bash
+pnpm wecom:invoice \
+  --pdf ./invoice.pdf \
+  --amount 98 \
+  --invoice-no 25957000000162986380 \
+  --submit
+```
+
 示例：
 ```bash
 pnpm wecom:workflow \
