@@ -206,15 +206,25 @@ async function main() {
 
   const weekendCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKEND_KEY || '';
   const weekdayCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKDAY_KEY || '';
+  const inlandTripCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_INLAND_TRIP_KEY || '';
+
+  const categoryType = arg('--category-type') || '';
+
   const categoryKey =
     arg('--category-key') ||
+    (categoryType === 'inland-trip' ? inlandTripCategoryKey : '') ||
     (isWeekend(dateTs) ? weekendCategoryKey : weekdayCategoryKey) ||
     '';
 
   const fileId = arg('--file-id') || '';
 
-  // category default: weekend -> 周末加班, else 晚上加班
-  const defaultCategoryKeyword = isWeekend(dateTs) ? '周末加班' : '晚上加班';
+  // category default: inland-trip -> 省内出差补贴 ; otherwise weekend/weekday overtime categories
+  const defaultCategoryKeyword =
+    categoryType === 'inland-trip'
+      ? '出差补贴-省内出差补贴'
+      : isWeekend(dateTs)
+        ? '周末加班'
+        : '晚上加班';
   const categoryKeyword = arg('--category') || defaultCategoryKeyword;
 
   const corpId = process.env.WECOM_CORP_ID;
@@ -252,8 +262,8 @@ async function main() {
     return;
   }
 
-  if (!purpose || !relatedSpNo) {
-    throw new Error('missing args: --purpose and --related-sp-no are required for submit/dry-run generation');
+  if (!purpose) {
+    throw new Error('missing args: --purpose is required for submit/dry-run generation');
   }
 
   const applyDataContents: Array<{ control: string; id: string; value: any }> = [];
@@ -292,11 +302,13 @@ async function main() {
     }
 
     if (/关联审批单/.test(title) && c === 'RelatedApproval') {
-      applyDataContents.push({
-        control: c,
-        id: ctrl.id,
-        value: { related_approval: [{ sp_no: relatedSpNo }] },
-      });
+      if (relatedSpNo) {
+        applyDataContents.push({
+          control: c,
+          id: ctrl.id,
+          value: { related_approval: [{ sp_no: relatedSpNo }] },
+        });
+      }
       continue;
     }
 
