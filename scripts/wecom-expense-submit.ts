@@ -202,17 +202,27 @@ async function main() {
   const remark = arg('--remark') || purpose;
   const projectName = arg('--project') || '温州天铭信息技术有限公司';
   const projectKey =
-    arg('--project-key') || process.env.WECOM_EXPENSE_PROJECT_KEY || '';
+    arg('--project-key') || process.env.WECOM_EXPENSE_PROJECT_KEY || 'option-1735096088613';
 
-  const weekendCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKEND_KEY || '';
-  const weekdayCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKDAY_KEY || '';
-  const inlandTripCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_INLAND_TRIP_KEY || '';
+  const weekendCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKEND_KEY || 'option-1735096198800';
+  const weekdayCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKDAY_KEY || 'option-1735096198799';
+  const inlandTripCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_INLAND_TRIP_KEY || 'option-1735096198796';
+
+  // Learned aliases from historical records (can be overridden by env)
+  const categoryAliasKeyMap: Record<string, string> = {
+    'overtime-night': weekdayCategoryKey,
+    'overtime-weekend': weekendCategoryKey,
+    'inland-trip': inlandTripCategoryKey,
+    'travel-transport': process.env.WECOM_EXPENSE_CATEGORY_TRAVEL_TRANSPORT_KEY || 'option-1735096198793',
+    'city-transport': process.env.WECOM_EXPENSE_CATEGORY_CITY_TRANSPORT_KEY || 'option-1735096198794',
+    lodging: process.env.WECOM_EXPENSE_CATEGORY_LODGING_KEY || 'option-1735096198795',
+  };
 
   const categoryType = arg('--category-type') || '';
 
   const categoryKey =
     arg('--category-key') ||
-    (categoryType === 'inland-trip' ? inlandTripCategoryKey : '') ||
+    (categoryType ? categoryAliasKeyMap[categoryType] : '') ||
     (isWeekend(dateTs) ? weekendCategoryKey : weekdayCategoryKey) ||
     '';
 
@@ -317,7 +327,7 @@ async function main() {
       const hit = categoryKey
         ? { key: categoryKey, text: categoryKeyword }
         : chooseOption(options, categoryKeyword) || options[0];
-      if (!hit) throw new Error('category selector has no options; pass --category-key (or set WECOM_EXPENSE_CATEGORY_WEEKDAY_KEY / WECOM_EXPENSE_CATEGORY_WEEKEND_KEY)');
+      if (!hit) throw new Error('category selector has no options; pass --category-key or use --category-type (inland-trip/overtime-night/overtime-weekend/travel-transport/city-transport/lodging)');
       applyDataContents.push({
         control: c,
         id: ctrl.id,
