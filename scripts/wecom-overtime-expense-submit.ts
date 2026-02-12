@@ -71,6 +71,26 @@ function isWeekend(dateTs: number): boolean {
   return day === 0 || day === 6;
 }
 
+function pickRandomOvertimeWindow(dateTs: number): { startTs: number; endTs: number } {
+  const base = new Date(dateTs * 1000);
+  // random start between 08:00 and 10:45
+  const startHour = 8 + Math.floor(Math.random() * 3); // 8,9,10
+  const minuteOptions = [0, 15, 30, 45];
+  const startMinute = minuteOptions[Math.floor(Math.random() * minuteOptions.length)];
+
+  const start = new Date(base);
+  start.setHours(startHour, startMinute, 0, 0);
+
+  // random duration between 8.0h and 10.0h in 0.5h steps
+  const durationHours = 8 + Math.floor(Math.random() * 5) * 0.5;
+  const end = new Date(start.getTime() + durationHours * 3600 * 1000);
+
+  return {
+    startTs: Math.floor(start.getTime() / 1000),
+    endTs: Math.floor(end.getTime() / 1000),
+  };
+}
+
 function wecomUrl(path: string, accessToken?: string): string {
   const base = 'https://qyapi.weixin.qq.com';
   if (!accessToken) return `${base}${path}`;
@@ -280,14 +300,25 @@ async function main() {
   const endInput = arg('--end');
   const amount = arg('--amount') || '150';
 
-  if (!reason || !startInput || !endInput) {
-    console.log('Usage: pnpm wecom:combo --reason "..." --start "YYYY-MM-DD HH:mm" --end "YYYY-MM-DD HH:mm" [--date YYYY-MM-DD] [--amount 150] [--submit]');
+  if (!reason) {
+    console.log('Usage: pnpm wecom:workflow --reason "..." [--start "YYYY-MM-DD HH:mm" --end "YYYY-MM-DD HH:mm"] [--date YYYY-MM-DD] [--amount 150] [--submit]');
     process.exit(1);
   }
 
-  const startTs = toTs(startInput);
-  const endTs = toTs(endInput);
-  const dateTs = dateInput ? toTs(dateInput) : toTs(formatDate(startTs));
+  let startTs = 0;
+  let endTs = 0;
+  let dateTs = 0;
+
+  if (startInput && endInput) {
+    startTs = toTs(startInput);
+    endTs = toTs(endInput);
+    dateTs = dateInput ? toTs(dateInput) : toTs(formatDate(startTs));
+  } else {
+    dateTs = dateInput ? toTs(dateInput) : Math.floor(Date.now() / 1000);
+    const win = pickRandomOvertimeWindow(dateTs);
+    startTs = win.startTs;
+    endTs = win.endTs;
+  }
 
   const corpId = process.env.WECOM_CORP_ID;
   const secret = process.env.WECOM_SECRET;
@@ -299,6 +330,10 @@ async function main() {
   const weekdayKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKDAY_KEY || 'option-1735096198799';
   const weekendKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKEND_KEY || 'option-1735096198800';
   const categoryKey = isWeekend(dateTs) ? weekendKey : weekdayKey;
+
+  if (!startInput || !endInput) {
+    console.log(`ℹ️ auto time window selected: ${formatCN(startTs)} ~ ${formatCN(endTs)}`);
+  }
 
   if (!corpId || !secret || !userId || !overtimeTpl || !expenseTpl) {
     throw new Error('missing env: WECOM_CORP_ID / WECOM_SECRET / WECOM_DEFAULT_USER_ID / WECOM_TEMPLATE_OVERTIME / WECOM_TEMPLATE_EXPENSE');

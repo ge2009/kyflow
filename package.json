@@ -43,7 +43,7 @@
     "wecom:upload-file": "tsx scripts/wecom-upload-file.ts",
     "wecom:detail": "tsx scripts/wecom-approval-detail.ts",
     "wecom:list": "tsx scripts/wecom-approval-list.ts",
-    "wecom:combo": "tsx scripts/wecom-overtime-expense-submit.ts"
+    "wecom:workflow": "tsx scripts/wecom-overtime-expense-submit.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.89",
