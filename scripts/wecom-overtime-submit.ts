@@ -1,0 +1,221 @@
+#!/usr/bin/env tsx
+/**
+ * WeCom overtime approval payload generator/submission
+ *
+ * Default mode: dry-run (print payload JSON only)
+ * Submit mode: pass --submit
+ *
+ * Example:
+ *   pnpm wecom:overtime --reason "修复线上问题" --start "2026-02-12 19:00" --end "2026-02-12 22:30"
+ *   pnpm wecom:overtime --reason "修复线上问题" --start "2026-02-12 19:00" --end "2026-02-12 22:30" --submit
+ */
+
+type AnyObj = Record<string, any>;
+
+type FlatControl = {
+  id: string;
+  control: string;
+  title: string;
+  raw: AnyObj;
+};
+
+const TZ_OFFSET = '+08:00';
+
+function arg(name: string): string | undefined {
+  const i = process.argv.indexOf(name);
+  if (i !== -1 && process.argv[i + 1]) return process.argv[i + 1];
+  const kv = process.argv.find((a) => a.startsWith(`${name}=`));
+  return kv ? kv.slice(name.length + 1) : undefined;
+}
+
+function hasFlag(name: string): boolean {
+  return process.argv.includes(name);
+}
+
+function toTs(input: string): number {
+  const normalized = input.includes('T')
+    ? input
+    : input.replace(' ', 'T') + (input.length <= 16 ? ':00' : '');
+  const withTz = /([zZ]|[+-]\d\d:?\d\d)$/.test(normalized)
+    ? normalized
+    : `${normalized}${TZ_OFFSET}`;
+  const d = new Date(withTz);
+  if (Number.isNaN(d.getTime())) {
+    throw new Error(`invalid datetime: ${input} (expect e.g. 2026-02-12 19:00)`);
+  }
+  return Math.floor(d.getTime() / 1000);
+}
+
+function wecomUrl(path: string, accessToken?: string): string {
+  const base = 'https://qyapi.weixin.qq.com';
+  if (!accessToken) return `${base}${path}`;
+  const sep = path.includes('?') ? '&' : '?';
+  return `${base}${path}${sep}access_token=${encodeURIComponent(accessToken)}`;
+}
+
+async function getJson(url: string, init?: RequestInit): Promise<any> {
+  const res = await fetch(url, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init?.headers || {}),
+    },
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return data;
+}
+
+function okOrThrow(data: any, scene: string) {
+  const code = Number(data?.errcode ?? -1);
+  if (code !== 0) throw new Error(`${scene} failed: errcode=${code}, errmsg=${data?.errmsg || 'unknown'}`);
+}
+
+function flattenControls(node: any, out: FlatControl[] = []): FlatControl[] {
+  if (!node) return out;
+  if (Array.isArray(node)) {
+    for (const item of node) flattenControls(item, out);
+    return out;
+  }
+  if (typeof node !== 'object') return out;
+
+  const id = node.id;
+  const control = node.control;
+  const title =
+    node?.property?.title?.[0]?.text ||
+    node?.property?.title?.text ||
+    node?.title?.[0]?.text ||
+    node?.title?.text ||
+    node?.name ||
+    '';
+
+  if (id && control) {
+    out.push({ id: String(id), control: String(control), title: String(title), raw: node });
+  }
+
+  for (const v of Object.values(node)) flattenControls(v, out);
+  return out;
+}
+
+function findByTitle(controls: FlatControl[], keywords: string[]): FlatControl | undefined {
+  return controls.find((c) => keywords.some((k) => c.title.includes(k)));
+}
+
+function calcHours(startTs: number, endTs: number): string {
+  const h = (endTs - startTs) / 3600;
+  if (h <= 0) throw new Error('end time must be later than start time');
+  return (Math.round(h * 100) / 100).toString();
+}
+
+function buildValue(control: FlatControl, val: { reason: string; startTs: number; endTs: number; hours: string; userId: string }) {
+  const title = control.title;
+  const c = control.control;
+
+  const isReason = /事由|原因|说明|备注/.test(title);
+  const isStart = /开始/.test(title);
+  const isEnd = /结束/.test(title);
+  const isDuration = /时长|小时/.test(title);
+  const isApplicant = /申请人|加班人|人员/.test(title);
+
+  if (isReason && ['Text', 'Textarea'].includes(c)) {
+    return { text: val.reason };
+  }
+
+  if (isStart && c === 'Date') {
+    return { date: { type: 'hour', s_timestamp: val.startTs } };
+  }
+  if (isEnd && c === 'Date') {
+    return { date: { type: 'hour', s_timestamp: val.endTs } };
+  }
+
+  if (isDuration && (c === 'Text' || c === 'Textarea')) {
+    return { text: val.hours };
+  }
+  if (isDuration && c === 'Number') {
+    return { new_number: val.hours };
+  }
+
+  if (isApplicant && c === 'Contact') {
+    return { members: [{ userid: val.userId }] };
+  }
+
+  return undefined;
+}
+
+async function main() {
+  const reason = arg('--reason');
+  const start = arg('--start');
+  const end = arg('--end');
+  const submit = hasFlag('--submit');
+
+  if (!reason || !start || !end) {
+    console.log('Usage: pnpm wecom:overtime --reason "..." --start "YYYY-MM-DD HH:mm" --end "YYYY-MM-DD HH:mm" [--submit]');
+    process.exit(1);
+  }
+
+  const corpId = process.env.WECOM_CORP_ID;
+  const secret = process.env.WECOM_SECRET;
+  const userId = process.env.WECOM_DEFAULT_USER_ID;
+  const templateId = process.env.WECOM_TEMPLATE_OVERTIME;
+
+  for (const [k, v] of Object.entries({ corpId, secret, userId, templateId })) {
+    if (!v) throw new Error(`missing env: ${k.replace(/[A-Z]/g, (m, i) => (i ? '_' : '') + m).toUpperCase()}`);
+  }
+
+  const startTs = toTs(start);
+  const endTs = toTs(end);
+  const hours = calcHours(startTs, endTs);
+
+  const tokenResp = await getJson(
+    wecomUrl(`/cgi-bin/gettoken?corpid=${encodeURIComponent(corpId!)}&corpsecret=${encodeURIComponent(secret!)}`)
+  );
+  okOrThrow(tokenResp, 'gettoken');
+  const accessToken = tokenResp.access_token as string;
+
+  const templateResp = await getJson(wecomUrl('/cgi-bin/oa/gettemplatedetail', accessToken), {
+    method: 'POST',
+    body: JSON.stringify({ template_id: templateId }),
+  });
+  okOrThrow(templateResp, 'gettemplatedetail');
+
+  const controls = flattenControls(templateResp?.template_content);
+
+  const applyDataContents: Array<{ control: string; id: string; value: any }> = [];
+  for (const ctrl of controls) {
+    const value = buildValue(ctrl, { reason, startTs, endTs, hours, userId: userId! });
+    if (value !== undefined) {
+      applyDataContents.push({ control: ctrl.control, id: ctrl.id, value });
+    }
+  }
+
+  const payload = {
+    creator_userid: userId,
+    template_id: templateId,
+    use_template_approver: 1,
+    apply_data: {
+      contents: applyDataContents,
+    },
+    // optional, keep empty for now
+    notifyer: [],
+  };
+
+  console.log(JSON.stringify(payload, null, 2));
+
+  if (!submit) {
+    console.log('\nDry-run only. Add --submit to actually create approval.');
+    return;
+  }
+
+  const submitResp = await getJson(wecomUrl('/cgi-bin/oa/applyevent', accessToken), {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  okOrThrow(submitResp, 'applyevent');
+
+  console.log(`\n✅ submitted: sp_no=${submitResp?.sp_no || 'unknown'}`);
+}
+
+main().catch((e) => {
+  console.error(`❌ ${e?.message || e}`);
+  process.exit(1);
+});
