@@ -107,7 +107,7 @@ function calcHours(startTs: number, endTs: number): string {
   return (Math.round(h * 100) / 100).toString();
 }
 
-function buildValue(control: FlatControl, val: { reason: string; startTs: number; endTs: number; hours: string; userId: string }) {
+function buildValue(control: FlatControl, val: { reason: string; startTs: number; endTs: number; durationSec: number; hours: string; userId: string }) {
   const title = control.title;
   const c = control.control;
 
@@ -139,14 +139,18 @@ function buildValue(control: FlatControl, val: { reason: string; startTs: number
     return { members: [{ userid: val.userId }] };
   }
 
-  // Some enterprise approval templates use a built-in smart-time control
-  // for attendance/overtime. Try to fill it in one place with start/end.
-  if (/smart-time/i.test(c)) {
+  // Overtime template built-in control (id is often "smart-time")
+  if (c === 'Attendance' || control.id === 'smart-time') {
     return {
-      smart_time: {
-        start_time: val.startTs,
-        end_time: val.endTs,
-        duration: val.hours,
+      attendance: {
+        date_range: {
+          type: 'hour',
+          new_begin: val.startTs,
+          new_end: val.endTs,
+          new_duration: val.durationSec,
+        },
+        // 5 = 加班
+        type: 5,
       },
     };
   }
@@ -155,8 +159,9 @@ function buildValue(control: FlatControl, val: { reason: string; startTs: number
     return {
       date_range: {
         type: 'hour',
-        start_time: val.startTs,
-        end_time: val.endTs,
+        new_begin: val.startTs,
+        new_end: val.endTs,
+        new_duration: val.durationSec,
       },
     };
   }
@@ -187,6 +192,7 @@ async function main() {
 
   const startTs = start ? toTs(start) : 0;
   const endTs = end ? toTs(end) : 0;
+  const durationSec = start && end ? endTs - startTs : 0;
   const hours = start && end ? calcHours(startTs, endTs) : '0';
 
   const tokenResp = await getJson(
@@ -216,7 +222,7 @@ async function main() {
 
   const applyDataContents: Array<{ control: string; id: string; value: any }> = [];
   for (const ctrl of controls) {
-    const value = buildValue(ctrl, { reason, startTs, endTs, hours, userId: userId! });
+    const value = buildValue(ctrl, { reason, startTs, endTs, durationSec, hours, userId: userId! });
     if (value !== undefined) {
       applyDataContents.push({ control: ctrl.control, id: ctrl.id, value });
     }
