@@ -48,11 +48,33 @@ function okOrThrow(data: any, scene: string) {
   if (code !== 0) throw new Error(`${scene} failed: errcode=${code}, errmsg=${data?.errmsg || 'unknown'}`);
 }
 
-function extractInvoiceNoFromPdf(pdfPath: string): string | null {
+function extractInvoiceNoFromFile(filePath: string): string | null {
   try {
-    const cmd = `python3 - <<'PY'\nimport re, sys, pdfplumber\npath = ${JSON.stringify(pdfPath)}\ntext=[]\nwith pdfplumber.open(path) as p:\n    for page in p.pages[:3]:\n        try:\n            text.append(page.extract_text() or '')\n        except Exception:\n            pass\nfull='\\n'.join(text)\npatterns=[r'发票号码[:：]?\\s*([0-9]{8,20})', r'Invoice\\s*No\\.?\\s*[:：]?\\s*([0-9]{8,20})']\nfor pat in patterns:\n    m=re.search(pat, full, re.I)\n    if m:\n        print(m.group(1)); sys.exit(0)\nnums=re.findall(r'\\b[0-9]{8,20}\\b', full)\nif nums:\n    nums=sorted(nums, key=len, reverse=True)\n    print(nums[0]); sys.exit(0)\nprint('')\nPY`;
-    const out = execSync(cmd, { encoding: 'utf8' }).trim();
-    return out || null;
+    const ext = path.extname(filePath).toLowerCase();
+
+    // PDF: use pdfplumber extraction
+    if (ext === '.pdf') {
+      const cmd = `python3 - <<'PY'\nimport re, sys, pdfplumber\npath = ${JSON.stringify(filePath)}\ntext=[]\nwith pdfplumber.open(path) as p:\n    for page in p.pages[:3]:\n        try:\n            text.append(page.extract_text() or '')\n        except Exception:\n            pass\nfull='\\n'.join(text)\npatterns=[r'发票号码[:：]?\\s*([0-9]{8,20})', r'Invoice\\s*No\\.?\\s*[:：]?\\s*([0-9]{8,20})']\nfor pat in patterns:\n    m=re.search(pat, full, re.I)\n    if m:\n        print(m.group(1)); sys.exit(0)\nnums=re.findall(r'\\b[0-9]{8,20}\\b', full)\nif nums:\n    nums=sorted(nums, key=len, reverse=True)\n    print(nums[0]); sys.exit(0)\nprint('')\nPY`;
+      const out = execSync(cmd, { encoding: 'utf8' }).trim();
+      return out || null;
+    }
+
+    // Image: use tesseract OCR (jpg/jpeg/png/webp/heic...)
+    const ocrCmd = `tesseract ${JSON.stringify(filePath)} stdout -l chi_sim+eng --psm 6 2>/dev/null || tesseract ${JSON.stringify(filePath)} stdout -l eng --psm 6 2>/dev/null || true`;
+    const text = execSync(ocrCmd, { encoding: 'utf8' });
+
+    const m1 = text.match(/发票号码[:：]?\s*([0-9]{8,20})/i);
+    if (m1?.[1]) return m1[1];
+    const m2 = text.match(/Invoice\s*No\.?\s*[:：]?\s*([0-9]{8,20})/i);
+    if (m2?.[1]) return m2[1];
+
+    const nums = Array.from(text.matchAll(/\b[0-9]{8,20}\b/g)).map((x) => x[0]);
+    if (nums.length > 0) {
+      nums.sort((a, b) => b.length - a.length);
+      return nums[0];
+    }
+
+    return null;
   } catch {
     return null;
   }
@@ -84,7 +106,7 @@ async function main() {
   const invoiceNoInput = arg('--invoice-no');
 
   if (!pdf || !amount) {
-    console.log('Usage: pnpm wecom:invoice --pdf ./invoice.pdf --amount 98 [--invoice-no 12345678] [--submit]');
+    console.log('Usage: pnpm wecom:invoice --pdf ./invoice.pdf|./invoice.jpg|./invoice.png --amount 98 [--invoice-no 12345678] [--submit]');
     process.exit(1);
   }
 
@@ -103,7 +125,7 @@ async function main() {
   okOrThrow(tokenResp, 'gettoken');
   const accessToken = String(tokenResp.access_token);
 
-  const invoiceNo = invoiceNoInput || extractInvoiceNoFromPdf(pdf);
+  const invoiceNo = invoiceNoInput || extractInvoiceNoFromFile(pdf);
   if (!invoiceNo) {
     throw new Error('failed to extract invoice number from PDF; please pass --invoice-no manually');
   }

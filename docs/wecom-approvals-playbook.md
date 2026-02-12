@@ -55,8 +55,8 @@ pnpm wecom:expense \
 ### E) 电子发票报销
 - 命令：`pnpm wecom:invoice`
 - 能力：
-  - 自动上传 PDF
-  - 自动识别发票号码（可手动覆盖）
+  - 自动上传 PDF/JPG/PNG
+  - 自动识别发票号码（PDF 走文本提取；图片走 OCR，可手动覆盖）
   - 支持手动填写开票金额
 
 示例：
