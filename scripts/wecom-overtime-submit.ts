@@ -139,6 +139,28 @@ function buildValue(control: FlatControl, val: { reason: string; startTs: number
     return { members: [{ userid: val.userId }] };
   }
 
+  // Some enterprise approval templates use a built-in smart-time control
+  // for attendance/overtime. Try to fill it in one place with start/end.
+  if (/smart-time/i.test(c)) {
+    return {
+      smart_time: {
+        start_time: val.startTs,
+        end_time: val.endTs,
+        duration: val.hours,
+      },
+    };
+  }
+
+  if (c === 'DateRange') {
+    return {
+      date_range: {
+        type: 'hour',
+        start_time: val.startTs,
+        end_time: val.endTs,
+      },
+    };
+  }
+
   return undefined;
 }
 
@@ -147,9 +169,10 @@ async function main() {
   const start = arg('--start');
   const end = arg('--end');
   const submit = hasFlag('--submit');
+  const inspect = hasFlag('--inspect');
 
-  if (!reason || !start || !end) {
-    console.log('Usage: pnpm wecom:overtime --reason "..." --start "YYYY-MM-DD HH:mm" --end "YYYY-MM-DD HH:mm" [--submit]');
+  if (!inspect && (!reason || !start || !end)) {
+    console.log('Usage: pnpm wecom:overtime --reason "..." --start "YYYY-MM-DD HH:mm" --end "YYYY-MM-DD HH:mm" [--submit] [--inspect]');
     process.exit(1);
   }
 
@@ -162,9 +185,9 @@ async function main() {
     if (!v) throw new Error(`missing env: ${k.replace(/[A-Z]/g, (m, i) => (i ? '_' : '') + m).toUpperCase()}`);
   }
 
-  const startTs = toTs(start);
-  const endTs = toTs(end);
-  const hours = calcHours(startTs, endTs);
+  const startTs = start ? toTs(start) : 0;
+  const endTs = end ? toTs(end) : 0;
+  const hours = start && end ? calcHours(startTs, endTs) : '0';
 
   const tokenResp = await getJson(
     wecomUrl(`/cgi-bin/gettoken?corpid=${encodeURIComponent(corpId!)}&corpsecret=${encodeURIComponent(secret!)}`)
@@ -180,11 +203,35 @@ async function main() {
 
   const controls = flattenControls(templateResp?.template_content);
 
+  if (inspect) {
+    const rows = controls.map((c) => ({
+      id: c.id,
+      control: c.control,
+      title: c.title,
+      require: c.raw?.property?.require ?? c.raw?.require ?? false,
+    }));
+    console.log(JSON.stringify(rows, null, 2));
+    return;
+  }
+
   const applyDataContents: Array<{ control: string; id: string; value: any }> = [];
   for (const ctrl of controls) {
     const value = buildValue(ctrl, { reason, startTs, endTs, hours, userId: userId! });
     if (value !== undefined) {
       applyDataContents.push({ control: ctrl.control, id: ctrl.id, value });
+    }
+  }
+
+  const requiredControls = controls.filter(
+    (c) => c.raw?.property?.require === 1 || c.raw?.property?.require === true || c.raw?.require === 1 || c.raw?.require === true
+  );
+  const providedIds = new Set(applyDataContents.map((c) => c.id));
+  const missingRequired = requiredControls.filter((c) => !providedIds.has(c.id));
+
+  if (missingRequired.length > 0) {
+    console.log('⚠️ required controls not auto-filled:');
+    for (const m of missingRequired) {
+      console.log(`- ${m.title || '(no-title)'} [id=${m.id}, control=${m.control}]`);
     }
   }
 
