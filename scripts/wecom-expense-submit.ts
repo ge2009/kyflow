@@ -201,8 +201,16 @@ async function main() {
   const relatedSpNo = arg('--related-sp-no') || '';
   const remark = arg('--remark') || purpose;
   const projectName = arg('--project') || '温州天铭信息技术有限公司';
-  const projectKey = arg('--project-key') || '';
-  const categoryKey = arg('--category-key') || '';
+  const projectKey =
+    arg('--project-key') || process.env.WECOM_EXPENSE_PROJECT_KEY || '';
+
+  const weekendCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKEND_KEY || '';
+  const weekdayCategoryKey = process.env.WECOM_EXPENSE_CATEGORY_WEEKDAY_KEY || '';
+  const categoryKey =
+    arg('--category-key') ||
+    (isWeekend(dateTs) ? weekendCategoryKey : weekdayCategoryKey) ||
+    '';
+
   const fileId = arg('--file-id') || '';
 
   // category default: weekend -> 周末加班, else 晚上加班
@@ -297,7 +305,7 @@ async function main() {
       const hit = categoryKey
         ? { key: categoryKey, text: categoryKeyword }
         : chooseOption(options, categoryKeyword) || options[0];
-      if (!hit) throw new Error('category selector has no options; pass --category-key');
+      if (!hit) throw new Error('category selector has no options; pass --category-key (or set WECOM_EXPENSE_CATEGORY_WEEKDAY_KEY / WECOM_EXPENSE_CATEGORY_WEEKEND_KEY)');
       applyDataContents.push({
         control: c,
         id: ctrl.id,
