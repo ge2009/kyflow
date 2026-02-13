@@ -44,7 +44,8 @@
     "wecom:detail": "tsx scripts/wecom-approval-detail.ts",
     "wecom:list": "tsx scripts/wecom-approval-list.ts",
     "wecom:workflow": "tsx scripts/wecom-overtime-expense-submit.ts",
-    "wecom:invoice": "tsx scripts/wecom-invoice-submit.ts"
+    "wecom:invoice": "tsx scripts/wecom-invoice-submit.ts",
+    "wecom:pending-reminder": "tsx scripts/wecom-pending-reminder.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.89",
