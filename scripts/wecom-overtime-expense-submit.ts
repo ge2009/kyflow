@@ -8,6 +8,8 @@
  * Use --submit to actually submit.
  */
 
+export {};
+
 type AnyObj = Record<string, any>;
 
 type FlatControl = {

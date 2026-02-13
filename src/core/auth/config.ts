@@ -16,6 +16,7 @@ import { getClientIp } from '@/shared/lib/ip';
 import { grantCreditsForNewUser } from '@/shared/models/credit';
 import { getEmailService } from '@/shared/services/email';
 import { grantRoleForNewUser } from '@/shared/services/rbac';
+import { getWecomAuthPlugin } from '@/core/auth/wecom';
 
 // Best-effort dedupe to prevent sending verification emails too frequently.
 // This is especially helpful in dev/hot reload, transient network conditions,
@@ -74,6 +75,7 @@ const authOptions = {
 export async function getAuthOptions(configs: Record<string, string>) {
   const emailVerificationEnabled =
     configs.email_verification_enabled === 'true' && !!configs.resend_api_key;
+  const wecomPlugin = getWecomAuthPlugin(configs);
 
   return {
     ...authOptions,
@@ -202,8 +204,15 @@ export async function getAuthOptions(configs: Record<string, string>) {
       : {}),
     socialProviders: await getSocialProviders(configs),
     plugins:
-      configs.google_client_id && configs.google_one_tap_enabled === 'true'
-        ? [oneTap()]
+      (configs.google_client_id && configs.google_one_tap_enabled === 'true') ||
+      wecomPlugin
+        ? [
+            ...(configs.google_client_id &&
+            configs.google_one_tap_enabled === 'true'
+              ? [oneTap()]
+              : []),
+            ...(wecomPlugin ? [wecomPlugin] : []),
+          ]
         : [],
   };
 }

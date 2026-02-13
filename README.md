@@ -12,6 +12,10 @@ check [ShipAny Templates](https://shipany.ai/templates) to buy Business Template
 
 submit your feedbacks on [Github Issues](https://github.com/shipanyai/shipany-template-two/issues)
 
+## Deployment Runbooks
+
+- Railway (staging + production): [docs/railway-deployment.md](./docs/railway-deployment.md)
+
 ## LICENSE
 
 !!! Please do not publicly release ShipAny's Code. Illegal use will be prosecuted

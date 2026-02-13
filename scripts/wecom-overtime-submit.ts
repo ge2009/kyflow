@@ -10,6 +10,8 @@
  *   pnpm wecom:overtime --reason "修复线上问题" --start "2026-02-12 19:00" --end "2026-02-12 22:30" --submit
  */
 
+export {};
+
 type AnyObj = Record<string, any>;
 
 type FlatControl = {
@@ -238,7 +240,14 @@ async function main() {
 
   const applyDataContents: Array<{ control: string; id: string; value: any }> = [];
   for (const ctrl of controls) {
-    const value = buildValue(ctrl, { reason, startTs, endTs, durationSec, hours, userId: userId! });
+    const value = buildValue(ctrl, {
+      reason: reason ?? '',
+      startTs,
+      endTs,
+      durationSec,
+      hours,
+      userId: userId ?? '',
+    });
     if (value !== undefined) {
       applyDataContents.push({ control: ctrl.control, id: ctrl.id, value });
     }

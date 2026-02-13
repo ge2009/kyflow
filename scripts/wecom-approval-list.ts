@@ -6,6 +6,8 @@
  *   pnpm wecom:list --days 30
  */
 
+export {};
+
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
   if (i !== -1 && process.argv[i + 1]) return process.argv[i + 1];

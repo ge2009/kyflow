@@ -42,7 +42,7 @@ async function main() {
   const buf = await readFile(abs);
 
   const form = new FormData();
-  const file = new File([buf], path.basename(abs));
+  const file = new File([new Uint8Array(buf)], path.basename(abs));
   form.append('media', file);
 
   const res = await fetch(wecomUrl('/cgi-bin/media/upload?type=file', accessToken), {

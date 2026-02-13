@@ -7,6 +7,8 @@
  * Submit mode: --submit
  */
 
+export {};
+
 type AnyObj = Record<string, any>;
 
 type FlatControl = {

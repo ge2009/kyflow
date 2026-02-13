@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { RiGithubFill, RiGoogleFill } from 'react-icons/ri';
+import { RiGithubFill, RiGoogleFill, RiWechatFill } from 'react-icons/ri';
 import { toast } from 'sonner';
 
 import { signIn } from '@/core/auth/client';
@@ -81,6 +81,15 @@ export function SocialProviders({
       title: t('github_sign_in_title'),
       icon: <RiGithubFill />,
       onClick: () => handleSignIn({ provider: 'github' }),
+    });
+  }
+
+  if (configs.wecom_auth_enabled === 'true') {
+    providers.push({
+      name: 'wecom',
+      title: t('wecom_sign_in_title'),
+      icon: <RiWechatFill />,
+      onClick: () => handleSignIn({ provider: 'wecom' }),
     });
   }
 

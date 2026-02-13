@@ -12,6 +12,8 @@
  * - Never prints secrets, tokens, or full response bodies.
  */
 
+export {};
+
 type CheckResult = {
   name: string;
   ok: boolean;

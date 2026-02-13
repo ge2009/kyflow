@@ -8,6 +8,8 @@
  * - include handling hint: 工作台 → 审批 → 待处理
  */
 
+export {};
+
 type Json = Record<string, any>;
 
 const BASE = 'https://qyapi.weixin.qq.com';

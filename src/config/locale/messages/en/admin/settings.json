@@ -3,6 +3,7 @@
     "email_auth": "Email Auth",
     "google_auth": "Google Auth",
     "github_auth": "Github Auth",
+    "wecom_auth": "WeCom Auth",
     "basic_payment": "Basic Payment",
     "stripe": "Stripe",
     "creem": "Creem",

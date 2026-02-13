@@ -3,6 +3,7 @@
     "email_auth": "邮箱认证",
     "google_auth": "Google认证",
     "github_auth": "Github认证",
+    "wecom_auth": "企业微信认证",
     "basic_payment": "基础支付",
     "stripe": "Stripe",
     "creem": "Creem",

@@ -15,6 +15,10 @@ FROM deps AS builder
 
 WORKDIR /app
 
+# Build-time public URL for client bundle (set per Railway service/environment)
+ARG NEXT_PUBLIC_APP_URL=http://localhost:8006
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
 # Install dependencies based on the preferred package manager
 COPY . .
 RUN pnpm build
@@ -34,11 +38,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 8006
 
 # set environment variables
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8006
 ENV HOSTNAME=0.0.0.0
 
 # server.js is created by next build from the standalone output
